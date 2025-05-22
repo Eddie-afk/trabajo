@@ -15,7 +15,10 @@ app.get("/velocidad", (req, res) => {
 });
 
 app.get("/escuela", (req, res) => {
-  res.json({ escuela: "Universidad Tecnologica De La Laguna Durango" });
+  res.json({
+    nombre: "Eddie Burciaga",
+    escuela: "Universidad Tecnologica De La Laguna Durango",
+  });
 });
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
