@@ -13,6 +13,10 @@ app.get("/temperatura", (req, res) => {
 app.get("/velocidad", (req, res) => {
   res.json({ nombre: "Eddie", apellido: "Burciaga" });
 });
+
+app.get("/escuela", (req, res) => {
+  res.json({ escuela: "Universidad De La Laguna Durango" });
+});
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en puerto ${PORT}`);
 });
