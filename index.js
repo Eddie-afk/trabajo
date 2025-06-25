@@ -19,7 +19,8 @@ app.post("/create-data-table", async (req, res) => {
       await pool.query(`
         CREATE TABLE data (
           id SERIAL PRIMARY KEY,
-          value TEXT,
+          nombre TEXT,
+          matricula INT,
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
       `);
@@ -63,13 +64,14 @@ app.delete("/delete-data-table", async (req, res) => {
 
 app.post("/savedata", async (req, res) => {
   const tableName = "data";
-  const { value } = req.body;
+  const { nombre, matricula } = req.body;
+
   console.log("entra");
 
   try {
     const result = await pool.query(
-      `INSERT INTO ${tableName}(value)  VALUES($1)`,
-      [value]
+      `INSERT INTO ${tableName}(nombre, matricula) VALUES($1,$2)`,
+      [nombre, matricula]
     );
 
     return res.status(201).json({
@@ -81,7 +83,6 @@ app.post("/savedata", async (req, res) => {
     res.status(500).json({ error: "Error al guardar los datos" });
   }
 });
-
 app.get("/temperatura", (req, res) => {
   res.json({ valor: "10 °C", timestamp: new Date().toISOString() });
 });
