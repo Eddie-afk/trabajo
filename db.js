@@ -3,7 +3,7 @@ import pg from "pg";
 const { Pool } = pg;
 const pool = new Pool({
   connectionString:
-    "postgresql://root:DuZyYqqVKGLitkGYLuNIGSLvak3TU7d8@dpg-d0vknlvdiees73d0ml90-a.oregon-postgres.render.com/trabajo_db_cs1t",
+    "postgresql://root:CQ0Au6RUO6kPMZFLcmFomnlnlgX9WVhi@dpg-d28cdi49c44c73aavn7g-a.oregon-postgres.render.com/trabajo2_db_cs1t",
   ssl: {
     rejectUnauthorized: false,
   },

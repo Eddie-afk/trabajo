@@ -83,6 +83,16 @@ app.post("/savedata", async (req, res) => {
     res.status(500).json({ error: "Error al guardar los datos" });
   }
 });
+
+app.get("/getdata", async (req, res) => {
+  const tableName = "data";
+  try {
+    const result = await pool.query(`SELECT * FROM ${tableName}`);
+    return res.json(result.rows);
+  } catch {
+    return res.status(500).json({ error: "Error al regresar los datos" });
+  }
+});
 app.get("/temperatura", (req, res) => {
   res.json({ valor: "10 °C", timestamp: new Date().toISOString() });
 });
