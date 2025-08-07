@@ -9,7 +9,7 @@ app.use(express.json());
 
 app.post("/create-data-table", async (req, res) => {
   try {
-    const tableName = "data";
+    const tableName = "device_logs";
 
     const checkTable = await pool.query("SELECT to_regclass($1) AS exists", [
       tableName,
@@ -37,7 +37,7 @@ app.post("/create-data-table", async (req, res) => {
 
 app.delete("/delete-data-table", async (req, res) => {
   try {
-    const tableName = "data";
+    const tableName = "device_logs";
 
     const checkTable = await pool.query("SELECT to_regclass($1) AS exists", [
       tableName,
@@ -63,7 +63,7 @@ app.delete("/delete-data-table", async (req, res) => {
 });
 
 app.post("/savedata", async (req, res) => {
-  const tableName = "data";
+  const tableName = "device_logs";
   const { nombre, matricula } = req.body;
 
   console.log("entra");
@@ -85,12 +85,33 @@ app.post("/savedata", async (req, res) => {
 });
 
 app.get("/getdata", async (req, res) => {
-  const tableName = "data";
+  const tableName = "device_logs";
   try {
     const result = await pool.query(`SELECT * FROM ${tableName}`);
     return res.json(result.rows);
   } catch {
     return res.status(500).json({ error: "Error al regresar los datos" });
+  }
+});
+
+app.post("/turn-on", async (req, res) => {
+  const { user, enrollId } = req.body;
+  const deviceStatus = {};
+  deviceStatus.isOn = true;
+
+  try {
+    await pool.query(
+      `INSERT INTO device_logs (action, "user", enroll_id) VALUES ($1, $2, $3)`,
+      ["turn-on", user, enrollId]
+    );
+
+    return res.json({
+      message: "Dispositivo encendido",
+      status: deviceStatus,
+    });
+  } catch (err) {
+    console.error("Error al guardar log:", err);
+    return res.status(500).json({ error: "Error al guardar log" });
   }
 });
 app.get("/temperatura", (req, res) => {
