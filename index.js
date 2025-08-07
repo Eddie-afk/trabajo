@@ -17,12 +17,12 @@ app.post("/create-data-table", async (req, res) => {
 
     if (!checkTable.rows[0].exists) {
       await pool.query(`
-        CREATE TABLE data (
-          id SERIAL PRIMARY KEY,
-          nombre TEXT,
-          matricula INT,
-          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
+        CREATE TABLE device_logs (
+        id SERIAL PRIMARY KEY,
+        action VARCHAR(50) NOT NULL,
+        "user" TEXT NOT NULL,
+        enroll_id TEXT NOT NULL,
+        timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP);
       `);
 
       return res.status(201).json({ message: "✅ Tabla creada exitosamente" });
