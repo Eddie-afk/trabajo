@@ -200,6 +200,34 @@ app.post("/save-data", async (req, res) => {
   }
 });
 
+// GET obtener la última config WiFi
+app.get("/wifi-config", async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      "SELECT ssid, password FROM wifi_credentials ORDER BY id DESC LIMIT 1"
+    );
+    if (rows.length > 0) res.json(rows[0]);
+    else res.json({ ssid: "", password: "" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error obteniendo configuración WiFi" });
+  }
+});
+
+// POST guardar config WiFi
+app.post("/wifi-config", async (req, res) => {
+  try {
+    const { ssid, password } = req.body;
+    await pool.query(
+      "INSERT INTO wifi_credentials (ssid, password) VALUES ($1, $2)",
+      [ssid, password]
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error guardando configuración WiFi" });
+  }
+});
 app.get("/temperatura", (req, res) => {
   res.json({ valor: "10 °C", timestamp: new Date().toISOString() });
 });
