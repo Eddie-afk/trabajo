@@ -121,7 +121,6 @@ app.post("/create-device-tables", async (req, res) => {
     );
 
     if (!checkRelay.rows[0].exists) {
-      // Row existence will represent ON/OFF (id=1 present => ON)
       await pool.query(`
         CREATE TABLE relay_status (
           id INTEGER PRIMARY KEY,
@@ -130,11 +129,35 @@ app.post("/create-device-tables", async (req, res) => {
       `);
     }
 
+    // --- wifi_credentials ---
+    const checkWifi = await pool.query(
+      `SELECT to_regclass($1)::text AS exists`,
+      ["public.wifi_credentials"]
+    );
+
+    if (!checkWifi.rows[0].exists) {
+      await pool.query(`
+        CREATE TABLE wifi_credentials (
+          id SERIAL PRIMARY KEY,
+          ssid TEXT NOT NULL,
+          password TEXT NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      // Insertar fila inicial de ejemplo opcional
+      await pool.query(`
+        INSERT INTO wifi_credentials (ssid, password)
+        VALUES ('estudiantes', '12345678')
+      `);
+    }
+
     return res.status(201).json({
       message: "✅ Tablas verificadas/creadas",
       tables: {
         device_logs: checkLogs.rows[0].exists ? "ya existía" : "creada",
         relay_status: checkRelay.rows[0].exists ? "ya existía" : "creada",
+        wifi_credentials: checkWifi.rows[0].exists ? "ya existía" : "creada",
       },
     });
   } catch (error) {
