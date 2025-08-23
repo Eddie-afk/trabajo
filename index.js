@@ -251,6 +251,78 @@ app.post("/wifi-config", async (req, res) => {
     res.status(500).json({ error: "Error guardando configuración WiFi" });
   }
 });
+
+// --- ENDPOINTS WIFI STATUS ---
+// Crear tabla wifi_status si no existe
+app.post("/create-wifi-status-table", async (req, res) => {
+  try {
+    const checkTable = await pool.query(
+      `SELECT to_regclass($1)::text AS exists`,
+      ["public.wifi_status"]
+    );
+
+    if (!checkTable.rows[0].exists) {
+      await pool.query(`
+        CREATE TABLE wifi_status (
+          id SERIAL PRIMARY KEY,
+          ssid TEXT,
+          connected BOOLEAN,
+          ip TEXT,
+          timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+
+      return res
+        .status(201)
+        .json({ message: "✅ Tabla wifi_status creada exitosamente" });
+    } else {
+      return res
+        .status(200)
+        .json({ message: "ℹ️ La tabla wifi_status ya existe" });
+    }
+  } catch (error) {
+    console.error("❌ Error creando tabla wifi_status:", error.message);
+    res.status(500).json({ error: "Error al crear la tabla wifi_status" });
+  }
+});
+
+// Guardar estado WiFi
+app.post("/wifi-status", async (req, res) => {
+  const { ssid, connected, ip } = req.body;
+
+  try {
+    await pool.query(
+      `INSERT INTO wifi_status (ssid, connected, ip) VALUES ($1, $2, $3)`,
+      [ssid || null, connected === true, ip || null]
+    );
+
+    res.json({ ok: true, message: "✅ Estado WiFi guardado" });
+  } catch (err) {
+    console.error("❌ Error guardando wifi_status:", err.message);
+    res.status(500).json({ ok: false, error: "Error guardando wifi_status" });
+  }
+});
+
+// Obtener último estado WiFi
+app.get("/wifi-status", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT ssid, connected, ip, timestamp 
+       FROM wifi_status 
+       ORDER BY id DESC LIMIT 1`
+    );
+
+    if (result.rows.length > 0) {
+      res.json(result.rows[0]);
+    } else {
+      res.json({ connected: false, ssid: null, ip: null });
+    }
+  } catch (err) {
+    console.error("❌ Error leyendo wifi_status:", err.message);
+    res.status(500).json({ error: "Error leyendo wifi_status" });
+  }
+});
+
 app.get("/temperatura", (req, res) => {
   res.json({ valor: "10 °C", timestamp: new Date().toISOString() });
 });
